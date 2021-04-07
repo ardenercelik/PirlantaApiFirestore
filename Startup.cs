@@ -61,6 +61,7 @@ namespace PirlantaApi
             });
             services.AddTransient<IPirlantaRepository, PirlantaRepository>();
             services.AddTransient<IMagazaRepository, MagazaRepository>();
+            services.AddTransient<IUserRepository,  UserRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

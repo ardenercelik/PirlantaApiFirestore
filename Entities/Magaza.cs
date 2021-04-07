@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using System.ComponentModel.DataAnnotations;
 using Google.Cloud.Firestore;
@@ -12,8 +11,6 @@ namespace PirlantaApi.Entities
         [FirestoreDocumentId]
         public string MagazaId { get; set; }
         [FirestoreProperty]
-        public List<Pirlanta> Pirlantalar { get; set; }
-        [FirestoreProperty]
         public string MagazaPhoneNumber { get; set; }
         [FirestoreProperty]
         [StringLength(160)]
@@ -24,7 +21,7 @@ namespace PirlantaApi.Entities
         public string MagazaName { get; set; }
         [FirestoreDocumentCreateTimestamp]
         public DateTime DateCreated { get; set; }
-        [FirestoreDocumentUpdateTimestamp]
+        [FirestoreProperty, ServerTimestamp]
         public DateTime DateUpdated { get; set; }
     }
 

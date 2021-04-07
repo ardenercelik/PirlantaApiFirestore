@@ -17,18 +17,13 @@ namespace PirlantaApi.Controllers
     public class MagazasController : ControllerBase
     {
         IMagazaRepository _repository;
-        public MagazasController( IMagazaRepository repository)
+        IUserRepository _userRepository;
+        public MagazasController( IMagazaRepository repository, IUserRepository userRepository)
         {
             _repository = repository;
-        }
+            _userRepository = userRepository;
+    }
 
-        //// GET: api/magazas?pageNumber=2&pageSize=3
-        //[HttpGet]
-        //public async Task<ActionResult<Magaza>> GetMagazalar([FromQuery]int pageNumber)
-        //{
-        //    var response = await _repository.GetPagedMagazalar(pageNumber); 
-        //    return Ok(response);
-        //}
 
         // GET: api/Magazas/5
         [HttpGet("{id}")]
@@ -67,10 +62,10 @@ namespace PirlantaApi.Controllers
                     return NotFound();
                 }
 
-                if(magaza is not null)
-                {
-                    magaza.Pirlantalar = magaza.Pirlantalar.OrderByDescending(c => c.DateUpdated).ToList();
-                }
+                //if(magaza is not null)
+                //{
+                //    magaza.Pirlantalar = magaza.Pirlantalar.OrderByDescending(c => c.DateUpdated).ToList();
+                //}
                 return Ok(magaza);
             //}
 
@@ -81,26 +76,25 @@ namespace PirlantaApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMagaza(string id, Magaza magaza)
         {
-            if (id != magaza.MagazaId)
+            bool magazaExists = await _repository.MagazaExists(id);
+            if (id != magaza.Uid)
             {
-                return BadRequest();
+                return BadRequest(NetHelper.CreateErrorMessage($"Id's does not match."));
             }
-            if (!MagazaExists(id))
+            if (!magazaExists)
             {
-                return NotFound();
+                return NotFound(NetHelper.CreateErrorMessage($"Magaza does not exists"));
             }
-
             try
             {
                 await _repository.PutMagaza(magaza);
             }
             catch (Exception)
             {
-               
                 throw;
             }
 
-            return NoContent();
+            return Ok(NetHelper.CreateSuccessMesseage($"Updated magaza {id}."));
         }
 
         // POST: api/Magazas
@@ -108,6 +102,16 @@ namespace PirlantaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Magaza>> PostMagaza(Magaza magaza)
         {
+            if (await _repository.MagazaExists(magaza.Uid))
+            {
+                return BadRequest(NetHelper.CreateErrorMessage($"Magaza already exists"));
+            }
+            bool magazaExists = await _userRepository.UserExists(magaza.Uid);
+            if (!magazaExists)
+            {
+                return BadRequest(NetHelper.CreateErrorMessage($"Magaza does not have a user"));
+            }
+
             await _repository.PostMagaza(magaza);
 
             return StatusCode(201);
@@ -115,25 +119,19 @@ namespace PirlantaApi.Controllers
 
         // DELETE: api/Magazas/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMagaza(string id)
+        public async Task<IActionResult> DeleteMagaza(string uid)
         {
-            var magaza = await _repository.FindMagaza(id);
+            var magaza = await _repository.FindMagaza(uid);
             if (magaza == null)
             {
-                return NotFound();
+                return NotFound(NetHelper.CreateErrorMessage($"Magaza does not exists"));
             }
-
             await _repository.DeleteMagaza(magaza);
             return NoContent();
         }
         private string GetClaim(ClaimsPrincipal principal, string key)
         {
             return principal?.Claims?.SingleOrDefault(p => p.Type == key)?.Value;
-        }
-        private bool MagazaExists(string id)
-        {
-            if (_repository.FindMagaza(id) != null) return true;
-            return false;
         }
 
     }

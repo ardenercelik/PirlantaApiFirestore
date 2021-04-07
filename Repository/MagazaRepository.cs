@@ -18,13 +18,15 @@ namespace PirlantaApi.Repository
     {
         FirestoreDb db = new FirestoreDbBuilder
         {
-            ProjectId = "pirlantam-3adc8",
+            ProjectId = AppConstants.ProjectId,
             EmulatorDetection = EmulatorDetection.EmulatorOrProduction,
 
         }.Build();
-        
         public async Task DeleteMagaza(Magaza magaza)
         {
+            if (magaza != null)
+            {
+
             Query pirlantaQuery = db.Collection("pirlantalar").WhereEqualTo("MagazaId", magaza.MagazaId);
             QuerySnapshot pirlantaSnapshot = await pirlantaQuery.GetSnapshotAsync();
             var stats = await StatsCollection(magaza.Uid).GetSnapshotAsync();
@@ -32,6 +34,7 @@ namespace PirlantaApi.Repository
             DbHelper<Pirlanta>.DeleteSnapshot(pirlantaSnapshot);
             DocumentReference docRef = db.Collection("magazalar").Document(magaza.MagazaId);
             await docRef.DeleteAsync();
+            }
         }
 
         public async Task<Magaza> GetMagaza(string id)
@@ -39,7 +42,7 @@ namespace PirlantaApi.Repository
             DocumentReference docRef = db.Collection("magazalar").Document(id);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
             var magaza = snapshot.ConvertTo<Magaza>();
-            magaza.Pirlantalar = await GetPirlantaUnderMagaza(id);
+            //magaza.Pirlantalar = await GetPirlantaUnderMagaza(id);
             return magaza;
         }
 
@@ -48,7 +51,7 @@ namespace PirlantaApi.Repository
             DocumentReference docRef = db.Collection("magazalar").Document(uid);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
             var magaza = snapshot.ConvertTo<Magaza>();
-            magaza.Pirlantalar = await GetPirlantaUnderMagaza(magaza.MagazaId);
+            //magaza.Pirlantalar = await GetPirlantaUnderMagaza(magaza.MagazaId);
             return magaza;
         }
 
@@ -57,12 +60,12 @@ namespace PirlantaApi.Repository
             await db.Collection("magazalar").Document(magaza.Uid).SetAsync(magaza);
             await StatsCollection(magaza.Uid)
                 .Document("stats")
-                .SetAsync(new Dictionary<string, object>() { { "Count", 0 } });
+                .SetAsync(new Dictionary<string, object>() { { "PirlantaCount", 0 } });
         }
 
         public async Task PutMagaza(Magaza magaza)
         {
-            DocumentReference docRef = db.Collection("magazalar").Document(magaza.MagazaId);
+            DocumentReference docRef = db.Collection("magazalar").Document(magaza.Uid);
             await docRef.SetAsync(magaza);
         }
 
@@ -73,11 +76,6 @@ namespace PirlantaApi.Repository
             var magaza = snapshot.ConvertTo<Magaza>();
             return magaza;
         }
-        private async Task<List<Pirlanta>> GetPirlantaUnderMagaza(string magazaId)
-        {
-            QuerySnapshot pirlantaQuery = await db.Collection("pirlantalar").WhereEqualTo("MagazaId", magazaId).GetSnapshotAsync();
-            return DbHelper<Pirlanta>.SnapshotToList(pirlantaQuery);
-        }
         private CollectionReference StatsCollection(string id)
         {
             return db
@@ -85,5 +83,16 @@ namespace PirlantaApi.Repository
                 .Document(id)
                 .Collection("stats");
         }
+        public async Task<bool> MagazaExists(string uid)
+        {
+            var magaza = await GetMagazaByUid(uid);
+            if (magaza != null) return true;
+            return false;
+        }
+        //private async Task<List<Pirlanta>> GetPirlantaUnderMagaza(string magazaId)
+        //{
+        //    QuerySnapshot pirlantaQuery = await db.Collection("pirlantalar").WhereEqualTo("MagazaId", magazaId).GetSnapshotAsync();
+        //    return DbHelper<Pirlanta>.SnapshotToList(pirlantaQuery);
+        //}
     }
 }

@@ -15,5 +15,7 @@ namespace PirlantaApi.Repository
         Task PostPirlanta(Pirlanta pirlanta);
         Task DeletePirlanta(Pirlanta pirlanta);
         Task<List<Pirlanta>> GetPirlantaUnderMagaza(string magazaId, int pageNumber);
+        bool PirlantaExists(string id);
+
     }
 }

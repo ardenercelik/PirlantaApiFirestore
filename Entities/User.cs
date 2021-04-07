@@ -18,11 +18,10 @@ namespace PirlantaApi.Entities
         [EmailAddress]
         [FirestoreProperty]
         public string Mail { get; set; }
-        [FirestoreProperty]
-        public Magaza Magaza { get; set; }
-
         [FirestoreDocumentCreateTimestamp]
-        public Timestamp CreateTime { get; set; }
+        public DateTime DateCreated { get; set; }
+        [FirestoreProperty, ServerTimestamp]
+        public DateTime DateUpdated { get; set; }
     }
 
 }

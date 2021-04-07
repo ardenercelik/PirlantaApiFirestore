@@ -13,10 +13,9 @@ namespace PirlantaApi
     {
         public static void Main(string[] args)
         {
-            Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", "localhost:8080");
+            //Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", "localhost:8080");
             CreateHostBuilder(args).Build().Run();
         }
-
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
             .ConfigureLogging(logging =>

@@ -9,6 +9,7 @@ using PirlantaApi.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using PirlantaApi.Repository;
+using PirlantaApi.Helpers;
 
 namespace PirlantaApi.Controllers
 {
@@ -19,9 +20,11 @@ namespace PirlantaApi.Controllers
     {
         private readonly ILogger _logger;
         IPirlantaRepository _repository;
-        public PirlantasController( ILogger<PirlantasController> logger, IPirlantaRepository repository)
+        IMagazaRepository _magazaRepository;
+        public PirlantasController( ILogger<PirlantasController> logger, IPirlantaRepository repository, IMagazaRepository magazaRepository)
         {
             _repository = repository;
+            _magazaRepository = magazaRepository;
             _logger = logger;
         }
 
@@ -34,7 +37,7 @@ namespace PirlantaApi.Controllers
             
             if (pirlanta == null)
             {
-                return NotFound();
+                return new Pirlanta();
             }
             return Ok(pirlanta);
         }
@@ -45,7 +48,7 @@ namespace PirlantaApi.Controllers
 
             if (pirlanta == null)
             {
-                return NotFound();
+                return new List<Pirlanta>();
             }
             return Ok(pirlanta);
         }
@@ -58,7 +61,7 @@ namespace PirlantaApi.Controllers
 
             if (pirlanta == null)
             {
-                return NotFound();
+                return new List<Pirlanta>();
             }
 
             return Ok(pirlanta);
@@ -71,11 +74,11 @@ namespace PirlantaApi.Controllers
         {
             if (id != pirlanta.PirlantaId)
             {
-                return BadRequest();
+                return BadRequest(NetHelper.CreateErrorMessage("Id's does not match."));
             }
-            if (!PirlantaExists(id))
+            if (!_repository.PirlantaExists(id))
             {
-                return NotFound();
+                return NotFound(NetHelper.CreateErrorMessage("Could not find item."));
             }
             try
             {
@@ -85,8 +88,7 @@ namespace PirlantaApi.Controllers
             {
                 throw;
             }
-
-            return NoContent();
+            return Ok(NetHelper.CreateSuccessMesseage($"Updated pirlanta {id}."));
         }
 
         // POST: api/Pirlantas
@@ -94,11 +96,15 @@ namespace PirlantaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Pirlanta>> PostPirlanta(Pirlanta pirlanta)
         {
-            if (!PirlantaExists(pirlanta.PirlantaId))
+            bool magazaExists = await _magazaRepository.MagazaExists(pirlanta.MagazaId);
+            if (!magazaExists)
             {
-                return BadRequest();
+                return NotFound(NetHelper.CreateErrorMessage($"Magaza with uid {pirlanta.MagazaId} does not exist"));
             }
-            //user id kontrol et
+            if (!_repository.PirlantaExists(pirlanta.PirlantaId))
+            {
+                return BadRequest(NetHelper.CreateErrorMessage("Item already exists."));
+            }
             await _repository.PostPirlanta(pirlanta);
             return StatusCode(201);
         }
@@ -110,18 +116,12 @@ namespace PirlantaApi.Controllers
             var pirlanta = await _repository.GetPirlanta(id);
             if (pirlanta == null)
             {
-                return NotFound();
+                return NotFound(NetHelper.CreateErrorMessage("Could not find item."));
             }
-
             await _repository.DeletePirlanta(pirlanta);
-
             return NoContent();
         }
 
-        private bool PirlantaExists(string id)
-        {
-            if (_repository.GetPirlanta(id) != null) return true;
-            return false;
-        }
+        
     }
 }

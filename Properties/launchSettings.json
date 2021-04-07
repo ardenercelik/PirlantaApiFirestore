@@ -24,7 +24,10 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://0.0.0.0:5005",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "PAGE_SIZE": "10",
+        "FIRESTORE_EMULATOR_HOST": "localhost:8080",
+        "PROJECT_ID": "pirlantam-3adc8"
       }
     }
   }

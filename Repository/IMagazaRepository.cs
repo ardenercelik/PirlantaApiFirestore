@@ -15,5 +15,6 @@ namespace PirlantaApi.Repository
         Task PostMagaza(Magaza magaza);
         Task DeleteMagaza(Magaza magaza);
         Task<Magaza> FindMagaza(string id);
+        Task<bool> MagazaExists(string id);
     }
 }

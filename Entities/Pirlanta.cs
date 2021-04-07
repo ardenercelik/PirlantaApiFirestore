@@ -10,6 +10,7 @@ using Google.Cloud.Firestore;
 namespace PirlantaApi.Entities
 {
     [FirestoreData]
+    
     public class Pirlanta
     {
         [FirestoreDocumentId]
@@ -31,7 +32,7 @@ namespace PirlantaApi.Entities
         public string MagazaId { get; set; }
         [FirestoreDocumentCreateTimestamp]
         public DateTime DateCreated { get; set; }
-        [FirestoreDocumentUpdateTimestamp]
+        [FirestoreProperty, ServerTimestamp]
         public DateTime DateUpdated { get; set; }
         [RegularExpression("D|E|F|G|H|I|J|K|L|M|N|P|R|S|Z", ErrorMessage = "Renk bilgisi sadece D-Z arası harf olabilir.")]
         [FirestoreProperty]
@@ -48,6 +49,6 @@ namespace PirlantaApi.Entities
         public string? Cert { get; set; }
 #nullable disable
     }
-
+  
 
 }

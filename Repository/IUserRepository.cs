@@ -12,5 +12,6 @@ namespace PirlantaApi.Repository
         Task PutUser(User user);
         Task PostUser(User user);
         Task DeleteUser(User user);
+        Task<bool> UserExists(string id);
     }
 }

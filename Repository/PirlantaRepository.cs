@@ -14,7 +14,7 @@ namespace PirlantaApi.Repository
     {
         FirestoreDb db = new FirestoreDbBuilder
         {
-            ProjectId = "pirlantam-3adc8",
+            ProjectId = AppConstants.ProjectId,
             EmulatorDetection = EmulatorDetection.EmulatorOrProduction,
 
         }.Build();
@@ -22,23 +22,24 @@ namespace PirlantaApi.Repository
         {
             DocumentReference docRef = PirlantaReference(pirlanta.PirlantaId);
             await docRef.DeleteAsync();
+            await StatsDocument(pirlanta.MagazaId).UpdateAsync("PirlantaCount", FieldValue.Increment(-1));
         }
 
         public async Task<Pirlanta> GetPirlanta(string id)
         {
-            Pirlanta pirlanta = new();
             DocumentSnapshot docRef = await db.Collection("pirlantalar").Document(id).GetSnapshotAsync();
-            pirlanta = docRef.ConvertTo<Pirlanta>();
+            var pirlanta = docRef.ConvertTo<Pirlanta>();
             return pirlanta;
         }
         public async Task<List<Pirlanta>> GetPirlantaUnderMagaza(string magazaId, int pageNumber)
         {
-            var pirlantaQuery = await db.Collection("pirlantalar").WhereEqualTo("MagazaId", magazaId).GetSnapshotAsync();
+            int pageSize = AppConstants.PageSize;
+            var pirlantaQuery = await db.Collection("pirlantalar").WhereEqualTo("MagazaId", magazaId).OrderByDescending("DateUpdated").Limit(pageSize).Offset((pageNumber - 1) * pageSize).GetSnapshotAsync();
             return DbHelper<Pirlanta>.SnapshotToList(pirlantaQuery);
         }
         public async Task<List<Pirlanta>> GetPirlantaFromQuery(string id, string cut, string color, string clarity, string cert, string magazaId, double? caratMin, double? caratMax, string type, int pageNumber)
         {
-            int pageSize = 10;
+            int pageSize = AppConstants.PageSize;
             Query query = db.CollectionGroup("pirlantalar");
             if (color is not null)
             {
@@ -69,11 +70,8 @@ namespace PirlantaApi.Repository
                 Console.WriteLine("c: " + caratMin.ToString());
                 query = query.WhereGreaterThanOrEqualTo("Carat", caratMin);
             };
-
             query = query.OrderByDescending("Carat").Limit(pageSize).Offset((pageNumber-1)*pageSize);
-
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
-       
             var result = DbHelper<Pirlanta>.SnapshotToList(snapshot);
             return result;
         }
@@ -83,12 +81,18 @@ namespace PirlantaApi.Repository
 
             CollectionReference collection = PirlantaCollection();
             await collection.AddAsync(pirlanta);
+            await StatsDocument(pirlanta.MagazaId).UpdateAsync("PirlantaCount", FieldValue.Increment(1));
         }
 
         public async Task PutPirlanta(Pirlanta pirlanta)
         {
             DocumentReference docRef = PirlantaReference(pirlanta.PirlantaId);
             await docRef.SetAsync(pirlanta);
+        }
+        public bool PirlantaExists(string id)
+        {
+            if (GetPirlanta(id) != null) return true;
+            return false;
         }
 
         private DocumentReference PirlantaReference(string id)
@@ -99,6 +103,10 @@ namespace PirlantaApi.Repository
         private CollectionReference PirlantaCollection()
         {
             return db.Collection("pirlantalar");
+        }
+        private DocumentReference StatsDocument(string magazaId)
+        {
+            return db.Collection("magazalar").Document(magazaId).Collection("stats").Document("stats");
         }
     }
 }
