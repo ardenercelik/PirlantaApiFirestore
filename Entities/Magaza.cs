@@ -18,6 +18,8 @@ namespace PirlantaApi.Entities
         [FirestoreProperty]
         public string Uid { get; set; }
         [FirestoreProperty]
+        public int PirlantaCount { get; set; }
+        [FirestoreProperty]
         public string MagazaName { get; set; }
         [FirestoreDocumentCreateTimestamp]
         public DateTime DateCreated { get; set; }

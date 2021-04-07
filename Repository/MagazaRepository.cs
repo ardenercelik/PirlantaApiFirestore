@@ -57,10 +57,8 @@ namespace PirlantaApi.Repository
 
         public async Task PostMagaza(Magaza magaza)
         {
+            magaza.PirlantaCount = 0;
             await db.Collection("magazalar").Document(magaza.Uid).SetAsync(magaza);
-            await StatsCollection(magaza.Uid)
-                .Document("stats")
-                .SetAsync(new Dictionary<string, object>() { { "PirlantaCount", 0 } });
         }
 
         public async Task PutMagaza(Magaza magaza)

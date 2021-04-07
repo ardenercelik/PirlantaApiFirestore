@@ -106,7 +106,7 @@ namespace PirlantaApi.Repository
         }
         private DocumentReference StatsDocument(string magazaId)
         {
-            return db.Collection("magazalar").Document(magazaId).Collection("stats").Document("stats");
+            return db.Collection("magazalar").Document(magazaId);
         }
     }
 }
