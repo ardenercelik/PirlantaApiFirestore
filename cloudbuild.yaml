@@ -1,0 +1,13 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        'eu-central3-docker.pkg.dev/pirlantam-3adc8/pirlanta-repository/pirlanta-api',
+        '.',
+      ]
+images:
+  [
+    'eu-central3-docker.pkg.dev/pirlantam-3adc8/pirlanta-repository/pirlanta-api',
+  ]
