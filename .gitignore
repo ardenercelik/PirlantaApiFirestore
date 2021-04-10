@@ -338,3 +338,8 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+deploy/cloudbuild.yaml
+deploy/commands
+deploy/openapi-run.yml
+Dockerfile.original
+cloudbuild.yaml

@@ -37,7 +37,7 @@ namespace PirlantaApi.Controllers
             
             if (pirlanta == null)
             {
-                return new Pirlanta();
+                return NotFound(NetHelper.CreateErrorMessage($"Pirlanta does not exist."));
             }
             return Ok(pirlanta);
         }
