@@ -14,9 +14,9 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-
 using PirlantaApi.Repository;
-
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 namespace PirlantaApi
 {
     public class Startup
@@ -38,7 +38,8 @@ namespace PirlantaApi
                        .AllowAnyHeader();
             }));
             services.AddControllers().AddNewtonsoftJson(options =>
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+            services.AddHealthChecks();
             services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -53,10 +54,15 @@ namespace PirlantaApi
             ValidateLifetime = true
         };
     });
+            services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllers().AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PirlantaApi", Version = "v1" });
+                c.CustomOperationIds(apiDesc =>
+                {
+                    return apiDesc.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null;
+                });
             });
             services.AddTransient<IPirlantaRepository, PirlantaRepository>();
             services.AddTransient<IMagazaRepository, MagazaRepository>();
@@ -72,9 +78,16 @@ namespace PirlantaApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            } else
+            {
+                app.UseExceptionHandler("/error");
             }
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PirlantaApi v1"));
+            app.UseSwagger(c =>
+            {
+                c.SerializeAsV2 = true;
+               
+            });
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.yaml", "PirlantaApi v1"));
 
             //app.UseHttpsRedirection();
             app.UseRouting();
@@ -85,6 +98,7 @@ namespace PirlantaApi
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHealthChecks("/");
                 endpoints.MapControllers();
             });
         }
