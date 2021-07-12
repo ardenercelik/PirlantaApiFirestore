@@ -21,6 +21,6 @@ pipeline {
 
 def dotnet_build() {
   dir("PirlantaApiFirestore") {
-        bat(script: 'dotnet restore PirlantaApi.csproj &&dotnet build PirlantaApi.csproj', returnStdout: true)
+        bat(script: 'dir && dotnet restore PirlantaApi.csproj &&dotnet build PirlantaApi.csproj', returnStdout: true)
   }
 }
