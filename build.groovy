@@ -12,7 +12,9 @@ pipeline {
       }
     }
     stage('Restore packages') {
-      dotnet_build()
+      steps {
+        dotnet_build()
+      }
     }
     }
 }
