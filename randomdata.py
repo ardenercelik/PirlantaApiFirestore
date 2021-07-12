@@ -8,7 +8,7 @@ fake = Faker()
 Faker.seed(0)
 
 s = ("ROUND","PRINCESS","OVAL","MARKIZ","PEAR","CUSHION","EMERALD","ASSCHER","RADIANT","HEART", "BAGET")
-color = ("D","E","F","G","H","I","J","K","L","M","N","P","R","S","Z")
+color = ("D","E","F","G","H","I","J","K","L","M","N","P","R","S","Z","X")
 clarity = ("IF","VVS1","VVS2","VS1","VS2","SI1","SI2","SI3","I1","I2","I3")
 cut = ("POOR","FAIR","GOOD","VERY GOOD","EXCELLENT")
 cert = ("GIA","HRD")
