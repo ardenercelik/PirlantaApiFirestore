@@ -1,3 +1,6 @@
+ libraries {
+     lib('arden')
+ }
 pipeline {
     agent any
     stages {
@@ -13,14 +16,12 @@ pipeline {
     }
     stage('Restore packages') {
       steps {
-        dotnet_build()
+        SayHello()
       }
     }
     }
 }
 
 def dotnet_build() {
- 
-        bat(script: 'dir && dotnet restore PirlantaApi.csproj &&dotnet build PirlantaApi.csproj', returnStdout: true)
-
+    bat(script: 'dir && dotnet restore PirlantaApi.csproj &&dotnet build PirlantaApi.csproj', returnStdout: true)
 }
