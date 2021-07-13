@@ -1,6 +1,4 @@
- libraries {
-     lib('arden')
- }
+@Library('arden')_
 pipeline {
     agent any
     stages {
